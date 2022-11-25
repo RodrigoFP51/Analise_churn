@@ -12,7 +12,8 @@ Rodrigo F. Pizzinato
     -   [Separação dos dados de treino, teste e validação
         cruzada](#separação-dos-dados-de-treino-teste-e-validação-cruzada)
     -   [Preprocessamento](#preprocessamento)
-    -   [Especificação do modelo](#especificação-do-modelo)
+    -   [Especificação do modelo
+        XGBoost](#especificação-do-modelo-xgboost)
     -   [Balanceamento de classes](#balanceamento-de-classes)
 -   [Matriz de confusão com dados
     balanceados](#matriz-de-confusão-com-dados-balanceados)
@@ -94,7 +95,7 @@ data <- data %>%
   mutate(across(c(HasCrCard, IsActiveMember, Exited), ~ if_else(.x == 1, "Sim", "Nao"))) %>% 
   janitor::clean_names()
 
-#write_csv(x = data, "churn_processed.csv")
+write_csv(x = data, "Dados/churn_processed.csv")
 ```
 
 ``` r
@@ -146,13 +147,14 @@ data %>%
 ![](Churn_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 Ao analisar as variáveis numéricas pela categoria de **churn** é
-possível entender alguns padrões:  
-- clientes mais velhos costumam ter uma taxa churn maior.  
-- existe um grande número de clientes que tem um saldo de conta
-zerado.  
-- número de produtos parece haver um grande concentração de clientes que
-não deram churn e adquiriram 2 produtos.  
-- as demais variáveis não demonstram ter grande efeito.
+possível entender alguns padrões:
+
+-   clientes mais velhos costumam ter uma taxa churn maior.  
+-   existe um grande número de clientes que tem um saldo de conta
+    zerado.  
+-   número de produtos parece haver um grande concentração de clientes
+    que não deram churn e adquiriram 2 produtos.  
+-   as demais variáveis não demonstram ter grande efeito.
 
 ``` r
 data %>% 
@@ -255,9 +257,9 @@ data %>%
 
 ![](Churn_files/figure-gfm/unnamed-chunk-10-1.png)<!-- -->
 
-Parece não haver correlação muito alta entre as variáveis preditoras,
-portanto não deve haver problemas de multicolinearidade nos modelos
-estimados.
+-   Parece não haver correlação muito alta entre as variáveis
+    preditoras, portanto não deve haver problemas de multicolinearidade
+    nos modelos estimados.
 
 ``` r
 # Transformar variáveis strings em factor
@@ -373,7 +375,7 @@ churn_test <- testing(split)
 
 ``` r
 churn_rec <- recipe(exited ~ ., data = churn_train) %>% 
-  step_YeoJohnson(all_numeric_predictors()) %>% 
+  step_log(all_numeric_predictors(), offset = 1) %>% # aplica transformação log1p 
   step_normalize(all_numeric_predictors()) %>% # normaliza os dados numericos
   step_dummy(all_nominal_predictors(), one_hot = TRUE) %>% # cria dummies de variaveis categoricas através de one hot encoding
   step_corr(all_numeric_predictors(), threshold = 0.8) %>% # retira variaveis com correlação > 0.8
@@ -396,18 +398,18 @@ churn_rec %>%
 ```
 
     ## # A tibble: 7,999 x 13
-    ##    credit_score    age tenure balance num_of_products estimated_salary exited
-    ##           <dbl>  <dbl>  <dbl>   <dbl>           <dbl>            <dbl> <fct> 
-    ##  1       -0.459  0.350 -1.45    0.629          -0.907         0.303    Nao   
-    ##  2        0.483  0.159 -1.45   -1.33            0.802        -0.000719 Nao   
-    ##  3        2.09   0.530 -1.03    0.777          -0.907        -0.252    Nao   
-    ##  4        1.79   1.09   0.712  -1.33            0.802        -1.75     Nao   
-    ##  5       -1.54   0.617 -0.280   0.824           0.802        -0.325    Nao   
-    ##  6        0.326 -1.31  -1.03    0.803          -0.907        -0.383    Nao   
-    ##  7       -1.27  -0.746  0.394   0.700           0.802        -0.233    Nao   
-    ##  8       -1.58  -1.81  -0.642  -1.33            0.802        -0.300    Nao   
-    ##  9       -1.79  -0.376  1.61   -1.33            0.802        -1.31     Nao   
-    ## 10       -0.182 -0.262  0.712  -1.33            0.802        -0.488    Nao   
+    ##    credit_score    age  tenure balance num_of_products estimated_salary exited
+    ##           <dbl>  <dbl>   <dbl>   <dbl>           <dbl>            <dbl> <fct> 
+    ##  1      -0.367   0.335 -1.54     0.694          -0.950          0.420   Nao   
+    ##  2       0.545   0.141 -1.54    -1.33            0.880          0.236   Nao   
+    ##  3       1.61    1.11   0.720   -1.33            0.880         -2.02    Nao   
+    ##  4      -1.63    0.609 -0.0450   0.788           0.880          0.00899 Nao   
+    ##  5       0.403  -1.28  -0.876    0.778          -0.950         -0.0354  Nao   
+    ##  6      -1.29   -0.747  0.503    0.729           0.880          0.0774  Nao   
+    ##  7      -1.97   -0.390  1.24    -1.33            0.880         -1.05    Nao   
+    ##  8      -1.03   -1.57   0.252   -1.33            0.880          0.955   Nao   
+    ##  9      -0.0831 -0.278  0.720   -1.33            0.880         -0.120   Nao   
+    ## 10      -0.282   0.697 -0.408    0.789           0.880         -0.146   Nao   
     ## # ... with 7,989 more rows, and 6 more variables: geography_France <dbl>,
     ## #   geography_Germany <dbl>, geography_Spain <dbl>, gender_Male <dbl>,
     ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>
@@ -419,7 +421,7 @@ trained_models <- train_classifiers(rec        = churn_rec,
 
 p1 <- trained_models %>% 
   ggplot(aes(precision, recall)) +
-  geom_point(pch = 21, fill = churn_colors[1], size = 10) +
+  geom_point(pch = 21, fill = churn_colors[1], size = 10, alpha = 0.6) +
   geom_text(aes(label = model), color = "black", hjust = 0.5, vjust = 0.1) +
   labs(title = 'Relação entre precision e recall dos modelos treinados.')
 
@@ -457,12 +459,12 @@ projeto a métrica a ser otimizada será o F1-score, que basicamente é uma
 média harmônica entre precision e recall, além de ser também muito útil
 para caso de classes desbalanceadas.
 
-O resultado encontrado de 0.5812 pode ser melhorado utilizando alguma
-técnica de balanceamento e otimização de hiperparâmetros.
+O resultado de 0.5721 obtido pode ser melhorado utilizando alguma
+técnica de balanceamento e otimização de hiperparâmetros do modelo.
 
 Isso será feito logo abaixo.
 
-## Especificação do modelo
+## Especificação do modelo XGBoost
 
 ``` r
 xgb_spec <- boost_tree(mtry = tune(),
@@ -562,15 +564,11 @@ xgb_last_fit <- xgb_wf_balanced %>%
   finalize_workflow(select_best(xgb_rs_balanced, metric = "f_meas")) %>% 
   last_fit(split)
 
-xgb_last_fit %>% 
-  extract_workflow() %>% 
-  extract_fit_parsnip() %>% 
-  vip::vip(aes = list(fill = "midnightblue")) 
-```
-
-![](Churn_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
-
-``` r
+# xgb_last_fit %>%
+#   extract_workflow() %>%
+#   extract_fit_parsnip() %>%
+#   vip::vip(aes = list(fill = "midnightblue"))
+  
 xgb_last_fit %>% 
   extract_workflow() %>% 
   extract_fit_parsnip() %>%
@@ -582,7 +580,7 @@ xgb_last_fit %>%
                        size = 1, horizontal = TRUE)
 ```
 
-![](Churn_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
+![](Churn_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 Como esperado, a idade demonstrou ser a variável mais importante para
 predição do churn. Logo em seguida vem o número de produtos adquiridos

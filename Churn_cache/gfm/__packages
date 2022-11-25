@@ -36,3 +36,5 @@ kernlab
 ranger
 xgboost
 themis
+janitor
+vip

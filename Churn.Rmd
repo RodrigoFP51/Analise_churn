@@ -7,17 +7,16 @@ output:
 ---
 
 # O problema de negócio
+
 ## O que é churn?
 
-No mundo atual é imprescidível que as empresas conheçam e tenha um bom relacionamento com seus clientes. 
-Para entender como se dá essa relação com os clientes, o índice de churn é uma métrica muito utilizada, pois é nela que se calcula a taxa de desistência de clientes num determinado período.
+No mundo atual é imprescidível que as empresas conheçam e tenha um bom relacionamento com seus clientes. Para entender como se dá essa relação com os clientes, o índice de churn é uma métrica muito utilizada, pois é nela que se calcula a taxa de desistência de clientes num determinado período.
 
 Essa desistência pode acontecer por diversos motivos, como insatisfação dos clientes com qualidade do produto, mau atendimento, ou até por encontrar melhores empresas do mesmo ramo.
 
 Desta forma, se torna essencial as empresas acompanharem esse indicativo, visto que a perda de clientes impacta diretamente os resultados financeiros da empresa e sua imagem no geral.
 
 O objetivo deste projeto é utilizar técnicas de machine learning para prever o churn de uma empresa e entender quais são as variáveis que mais influenciam nisso.
-
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE,
@@ -30,7 +29,8 @@ library(tidymodels)
 library(tidyverse)
 library(discrim)
 library(patchwork)
-library(ggcharts)
+library(janitor)
+library(vip)
 library(ggcorrplot)
 library(DataExplorer)
 
@@ -48,36 +48,39 @@ options(scipen = 999)
 ```
 
 # Carregamento dos dados
+
 Os dados utilizados neste projeto foram baixados do [Kaggle](https://www.kaggle.com/shubh0799/churn-modelling)
 
 ```{r}
 data <- read_csv("Dados/Churn_Modelling.csv")
 glimpse(data)
 ```
-O conjunto de dados apresenta as seguintes colunas: 
 
-- CustomerId: identificação do cliente;
-- Surname: sobrenome do cliente;
-- CreditScore: pontuação de credito do cliente;
-- Geography: país de onde o cliente pertence;
-- Gender: sexo do cliente;
-- Age: idade do cliente;
-- Tenure: tempo de que o cliente está com a empresa;
-- Balance: saldo da conta corrente;
-- NumOfProducts: número de produtos bancários adquiridos;
-- HasCrCard: se tem cartão de credito ou não;
-- IsActiveMember: se é um cliente com conta ativa;
-- EstimatedSalary: salário estimado do cliente;
-- Exited: se o cliente deixou de ser cliente do banco ou não.
+O conjunto de dados apresenta as seguintes colunas:
+
+-   CustomerId: identificação do cliente;
+-   Surname: sobrenome do cliente;
+-   CreditScore: pontuação de credito do cliente;
+-   Geography: país de onde o cliente pertence;
+-   Gender: sexo do cliente;
+-   Age: idade do cliente;
+-   Tenure: tempo de que o cliente está com a empresa;
+-   Balance: saldo da conta corrente;
+-   NumOfProducts: número de produtos bancários adquiridos;
+-   HasCrCard: se tem cartão de credito ou não;
+-   IsActiveMember: se é um cliente com conta ativa;
+-   EstimatedSalary: salário estimado do cliente;
+-   Exited: se o cliente deixou de ser cliente do banco ou não.
 
 Dado que **RowNumber** e **CustomerId** não apresenta informações úteis para predição do Churn, elas serão removidas. As colunas **HasCrCard**, **IsActiveMember**, e **Exited** estão codificadas com 0's e 1's e, no código abaixo, foram traduzidas para *sim* e *não*.
+
 ```{r}
 data <- data %>% 
   dplyr::select(-RowNumber, -CustomerId, -Surname) %>% 
   mutate(across(c(HasCrCard, IsActiveMember, Exited), ~ if_else(.x == 1, "Sim", "Nao"))) %>% 
   janitor::clean_names()
 
-#write_csv(x = data, "churn_processed.csv")
+write_csv(x = data, "Dados/churn_processed.csv")
 ```
 
 ```{r}
@@ -89,9 +92,10 @@ Não há valores missing no conjunto de dados.
 ```{r}
 dim(data)
 ```
+
 Existem 10000 clientes cadastrados na base e 12 características para cada um deles.
 
-# Análise Exploratória 
+# Análise Exploratória
 
 ```{r}
 # data %>% 
@@ -115,12 +119,13 @@ data %>%
   theme(legend.position = "top") 
 ```
 
-Ao analisar as variáveis numéricas pela categoria de **churn** é possível entender alguns padrões:  
-- clientes mais velhos costumam ter uma taxa churn maior.  
-- existe um grande número de clientes que tem um saldo de conta zerado.  
-- número de produtos parece haver um grande concentração de clientes que não deram churn e adquiriram 2 produtos.  
-- as demais variáveis não demonstram ter grande efeito.  
- 
+Ao analisar as variáveis numéricas pela categoria de **churn** é possível entender alguns padrões:
+
+-   clientes mais velhos costumam ter uma taxa churn maior.  
+-   existe um grande número de clientes que tem um saldo de conta zerado.  
+-   número de produtos parece haver um grande concentração de clientes que não deram churn e adquiriram 2 produtos.  
+-   as demais variáveis não demonstram ter grande efeito.
+
 ```{r}
 data %>% 
   count(exited) %>% 
@@ -150,8 +155,8 @@ data %>%
        fill = "Churn")
 ```
 
-- A variável idade apresenta outliers. 
-- Parece que, invariavelmente, a idade tende a ser a característica mais importante para churn, dado que pessoas mais velhas apresentam uma taxa maior de churn, independentemente de país e gênero.
+-   A variável idade apresenta outliers.
+-   Parece que, invariavelmente, a idade tende a ser a característica mais importante para churn, dado que pessoas mais velhas apresentam uma taxa maior de churn, independentemente de país e gênero.
 
 ```{r}
 data %>%  
@@ -172,9 +177,9 @@ data %>%
   theme(legend.position = "right")
 ```
 
-- Os clientes que adquirem mais produtos tem uma tendência maior a realizar o churn.  
-- Os clientes que compraram 4 produtos, apesar de serem poucos (60 para ser exato) em relação à base toda, realizaram churn.  
-- Isso demonstra talvez uma grande insatisfação pelos produtos, o que precisa ser revista pela empresa.  
+-   Os clientes que adquirem mais produtos tem uma tendência maior a realizar o churn.  
+-   Os clientes que compraram 4 produtos, apesar de serem poucos (60 para ser exato) em relação à base toda, realizaram churn.  
+-   Isso demonstra talvez uma grande insatisfação pelos produtos, o que precisa ser revista pela empresa.
 
 ```{r}
 data %>% 
@@ -190,8 +195,8 @@ data %>%
   labs(x='', y='', fill = "Churn")
 ```
 
-- Ter ou não ter um cartão de crédito não é um indicativo importante de churn, porém ser um membro ativo, sim.  
-- Gênero também parece ser um bom indicativo de churn, dado que a mulheres costumam a sair mais do quadro de clientes.  
+-   Ter ou não ter um cartão de crédito não é um indicativo importante de churn, porém ser um membro ativo, sim.  
+-   Gênero também parece ser um bom indicativo de churn, dado que a mulheres costumam a sair mais do quadro de clientes.
 
 ```{r}
 data %>% 
@@ -204,7 +209,7 @@ data %>%
              digits = 1)
 ```
 
-Parece não haver correlação muito alta entre as variáveis preditoras, portanto não deve haver problemas de multicolinearidade nos modelos estimados.
+- Parece não haver correlação muito alta entre as variáveis preditoras, portanto não deve haver problemas de multicolinearidade nos modelos estimados.
 
 ```{r}
 # Transformar variáveis strings em factor
@@ -214,6 +219,7 @@ data <- data %>%
 ```
 
 # Modelagem
+
 ## Função para treinar algoritmos classificadores
 
 ```{r}
@@ -297,8 +303,8 @@ train_classifiers <- function(rec, resamples, arrange_by = accuracy){
 
 }
 ```
-Essa função é feita justamente para filtrar quais algoritmos terão maior eficácia no conjunto de treino dos dados.
-Ela cria diversos algoritmos e os treina em validação cruzada. Após isso, apresenta os resultado em um tabela com diversas métricas de classificação.
+
+Essa função é feita justamente para filtrar quais algoritmos terão maior eficácia no conjunto de treino dos dados. Ela cria diversos algoritmos e os treina em validação cruzada. Após isso, apresenta os resultado em um tabela com diversas métricas de classificação.
 
 ## Separação dos dados de treino, teste e validação cruzada
 
@@ -316,15 +322,14 @@ churn_test <- testing(split)
 
 ```{r}
 churn_rec <- recipe(exited ~ ., data = churn_train) %>% 
-  step_YeoJohnson(all_numeric_predictors()) %>% 
+  step_log(all_numeric_predictors(), offset = 1) %>% # aplica transformação log1p 
   step_normalize(all_numeric_predictors()) %>% # normaliza os dados numericos
   step_dummy(all_nominal_predictors(), one_hot = TRUE) %>% # cria dummies de variaveis categoricas através de one hot encoding
   step_corr(all_numeric_predictors(), threshold = 0.8) %>% # retira variaveis com correlação > 0.8
   step_zv(all_predictors()) # retira variaveis com variância zero 
 ```
 
-Nesta etapa, os dados são ajustado da forma correta para os modelos. Portanto, a normalização das variáveis numéricas, criação de dummies para variáveis categóricas, etc. são tarefas comumente utilizadas nesta etapa.
-Neste caso, a criação de dummies foi feita antes do filtro de variáveis correlacionadas, pois após o processo de criação de dummies, as novas features podem assumir altas correlações entre si.
+Nesta etapa, os dados são ajustado da forma correta para os modelos. Portanto, a normalização das variáveis numéricas, criação de dummies para variáveis categóricas, etc. são tarefas comumente utilizadas nesta etapa. Neste caso, a criação de dummies foi feita antes do filtro de variáveis correlacionadas, pois após o processo de criação de dummies, as novas features podem assumir altas correlações entre si.
 
 O dataset criado após esse processo é mostrado abaixo.
 
@@ -334,7 +339,6 @@ churn_rec %>%
   juice() 
 ```
 
-
 ```{r, fig.height=8, fig.width=8, cache=TRUE}
 trained_models <- train_classifiers(rec        = churn_rec, 
                                     resamples  = folds, 
@@ -342,7 +346,7 @@ trained_models <- train_classifiers(rec        = churn_rec,
 
 p1 <- trained_models %>% 
   ggplot(aes(precision, recall)) +
-  geom_point(pch = 21, fill = churn_colors[1], size = 10) +
+  geom_point(pch = 21, fill = churn_colors[1], size = 10, alpha = 0.6) +
   geom_text(aes(label = model), color = "black", hjust = 0.5, vjust = 0.1) +
   labs(title = 'Relação entre precision e recall dos modelos treinados.')
 
@@ -361,20 +365,19 @@ p2 <- trained_models %>%
 (p1 / p2)
 ```
 
-Como os dados estão desbalanceados, a acurácia não nos oferece um bom indicativo de eficácia do modelo. Neste caso, o recall e precision serão mais adequados. 
+Como os dados estão desbalanceados, a acurácia não nos oferece um bom indicativo de eficácia do modelo. Neste caso, o recall e precision serão mais adequados.
 
 Lembrando que a nossa classe positiva aqui é o churn.
 
-O recall diz respeito a quantidade de dados classificados como positivos que o algoritmo de fato detectou. Neste caso, o modelo XGBOOST detectou quase 50%, segundo o primeiro gráfico.
-Já o precision indica quantos realmente são positivos, do total que o modelo detectou como positivo. O modelo XGBOOST oferece uma métrica de quase 80% aqui.
+O recall diz respeito a quantidade de dados classificados como positivos que o algoritmo de fato detectou. Neste caso, o modelo XGBOOST detectou quase 50%, segundo o primeiro gráfico. Já o precision indica quantos realmente são positivos, do total que o modelo detectou como positivo. O modelo XGBOOST oferece uma métrica de quase 80% aqui.
 
 Considero as duas métricas igualmente importantes. Portanto, para este projeto a métrica a ser otimizada será o F1-score, que basicamente é uma média harmônica entre precision e recall, além de ser também muito útil para caso de classes desbalanceadas.
 
-O resultado encontrado de `r round(trained_models$f_meas[1],4)` pode ser melhorado utilizando alguma técnica de balanceamento e otimização de hiperparâmetros.
+O resultado de `r round(trained_models$f_meas[1],4)` obtido pode ser melhorado utilizando alguma técnica de balanceamento e otimização de hiperparâmetros do modelo.
 
 Isso será feito logo abaixo.
 
-## Especificação do modelo
+## Especificação do modelo XGBoost
 
 ```{r}
 xgb_spec <- boost_tree(mtry = tune(),
@@ -387,7 +390,7 @@ xgb_spec <- boost_tree(mtry = tune(),
 xgb_wf <- workflow(churn_rec, xgb_spec)
 ```
 
-## Balanceamento de classes 
+## Balanceamento de classes
 
 Visto que os dados estão desbalanceados na variável resposta, será utilizada uma técnica de balanceamento chamada ADASYN (Adaptive Synthetic Sampling Method).
 
@@ -395,8 +398,7 @@ Esse algoritmo cria novas amostras de dados da classe minoritária adicionando r
 
 O algoritmo também conta com alguns paramêtros para otimizar, como o número de vizinho próximos considerados (`neighbors`) e valor da razão entre a classe majoritária e minoritária (`over_ratio`).
 
-Além desses parâmetros, deicidi também otimizar 3 hiperparâmetros do classificador XGBoost. 
-`mtry` é o número de preditores aleatoriamente usados em cada árvore. `trees` representa o número de árvores que o algoritmo utilizará e `min_n` é o tamanho mínimo de cada nó das árvores.
+Além desses parâmetros, deicidi também otimizar 3 hiperparâmetros do classificador XGBoost. `mtry` é o número de preditores aleatoriamente usados em cada árvore. `trees` representa o número de árvores que o algoritmo utilizará e `min_n` é o tamanho mínimo de cada nó das árvores.
 
 Foi criado, então, uma grade com todos esses parâmetros que foram utilizados na etapa de cross-validation.
 
@@ -452,10 +454,10 @@ xgb_last_fit <- xgb_wf_balanced %>%
   finalize_workflow(select_best(xgb_rs_balanced, metric = "f_meas")) %>% 
   last_fit(split)
 
-xgb_last_fit %>% 
-  extract_workflow() %>% 
-  extract_fit_parsnip() %>% 
-  vip::vip(aes = list(fill = "midnightblue")) 
+# xgb_last_fit %>%
+#   extract_workflow() %>%
+#   extract_fit_parsnip() %>%
+#   vip::vip(aes = list(fill = "midnightblue"))
   
 xgb_last_fit %>% 
   extract_workflow() %>% 
@@ -469,6 +471,3 @@ xgb_last_fit %>%
 ```
 
 Como esperado, a idade demonstrou ser a variável mais importante para predição do churn. Logo em seguida vem o número de produtos adquiridos pelo cliente e os clientes que são ativos.
-
-
-
