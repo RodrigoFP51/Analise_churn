@@ -99,17 +99,23 @@ write_csv(x = data, "Dados/churn_processed.csv")
 ```
 
 ``` r
-map_dfr(data, ~any(is.na(.x)))
+map_dfr(data, ~ sum(is.na(.x))) %>% t()
 ```
 
-    ## # A tibble: 1 x 11
-    ##   credit_score geography gender age   tenure balance num_of_products has_cr_card
-    ##   <lgl>        <lgl>     <lgl>  <lgl> <lgl>  <lgl>   <lgl>           <lgl>      
-    ## 1 FALSE        FALSE     FALSE  FALSE FALSE  FALSE   FALSE           FALSE      
-    ## # ... with 3 more variables: is_active_member <lgl>, estimated_salary <lgl>,
-    ## #   exited <lgl>
+    ##                  [,1]
+    ## credit_score        0
+    ## geography           0
+    ## gender              0
+    ## age                 0
+    ## tenure              0
+    ## balance             0
+    ## num_of_products     0
+    ## has_cr_card         0
+    ## is_active_member    0
+    ## estimated_salary    0
+    ## exited              0
 
-Não há valores missing no conjunto de dados.
+-   Não há valores missing no conjunto de dados.
 
 ``` r
 dim(data)
@@ -117,44 +123,46 @@ dim(data)
 
     ## [1] 10000    11
 
-Existem 10000 clientes cadastrados na base e 12 características para
-cada um deles.
+-   Existem 10000 clientes cadastrados na base e 12 características para
+    cada um deles.
 
 # Análise Exploratória
+
+``` r
+data %>%
+  pivot_longer(-where(is.character)) %>%
+  select(exited, name, value) %>%
+  ggplot(aes(value, fill = exited)) +
+  geom_density(alpha = 0.7, color = "black",
+               position = "identity", size = 1) +
+  facet_wrap(~name, scales = "free") +
+  scale_fill_manual(values = churn_colors) +
+  labs(x='', y='Densidade', fill = "Churn")
+```
+
+![](Churn_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 # data %>% 
 #   pivot_longer(-where(is.character)) %>%
 #   select(exited, name, value) %>% 
-#   ggplot(aes(value, fill = exited)) +
-#   geom_density(alpha = 0.7, color = "black",
-#                position = "identity", size = 1) +
-#   facet_wrap(~name, scales = "free") +
+#   ggplot(aes(exited, value, fill = exited)) +
+#   geom_boxplot(alpha = 0.75) +
+#   stat_summary(geom = "point", fun = mean, size = 2) +
 #   scale_fill_manual(values = churn_colors) +
-#   labs(x='', y='Densidade', fill = "Churn")
-
-data %>% 
-  pivot_longer(-where(is.character)) %>%
-  select(exited, name, value) %>% 
-  ggplot(aes(exited, value, fill = exited)) +
-  geom_boxplot(alpha = 0.75) +
-  stat_summary(geom = "point", fun = mean, size = 2, color = "dodgerblue") +
-  scale_fill_manual(values = churn_colors) +
-  facet_wrap(vars(name), scales = "free") +
-  theme(legend.position = "top") 
+#   facet_wrap(vars(name), scales = "free") +
+#   theme(legend.position = "top") 
 ```
-
-![](Churn_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 Ao analisar as variáveis numéricas pela categoria de **churn** é
 possível entender alguns padrões:
 
--   clientes mais velhos costumam ter uma taxa churn maior.  
--   existe um grande número de clientes que tem um saldo de conta
+-   Clientes mais velhos costumam ter uma taxa churn maior.  
+-   Existe um grande número de clientes que tem um saldo de conta
     zerado.  
--   número de produtos parece haver um grande concentração de clientes
+-   O número de produtos parece haver um grande concentração de clientes
     que não deram churn e adquiriram 2 produtos.  
--   as demais variáveis não demonstram ter grande efeito.
+-   As demais variáveis não demonstram ter grande efeito.
 
 ``` r
 data %>% 
@@ -167,7 +175,8 @@ data %>%
             vjust = 1.5,
             size = 7, 
             color = "white") +
-  labs(y='Proporção', x='Churn')
+  labs(y='Proporção', x='Churn',
+       title = "Proporção de churn na base de dados")
 ```
 
 ![](Churn_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
@@ -183,9 +192,10 @@ data %>%
   facet_wrap(~geography) + 
   scale_fill_manual(values = churn_colors) +
   scale_y_continuous(breaks = seq(10,100,10)) +
-  theme(legend.position = "top") +
+  theme(legend.position = "bottom") +
   labs(x='', y='Idade', 
-       fill = "Churn")
+       fill = "Churn",
+       title = "Efeito da idadee localização no churn")
 ```
 
 ![](Churn_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -232,7 +242,7 @@ data %>%
   scale_fill_manual(values = churn_colors) +
   scale_y_continuous(labels = scales::percent) +
   facet_wrap(~variable, scales = "free", ncol = 1) +
-  theme(legend.position = "top") +
+  theme(legend.position = "bottom") +
   coord_flip() +
   labs(x='', y='', fill = "Churn")
 ```
@@ -313,7 +323,7 @@ train_classifiers <- function(rec, resamples, arrange_by = accuracy){
   
   #lgbm_spec <- parsnip::boost_tree() %>% 
   #  set_mode("classification") %>% 
-  #  set_engine("lightgbm")
+  # set_engine("lightgbm")
   
   models = list(glm      = glm_spec,
                 naiveb   = naiveb_spec,
@@ -375,7 +385,7 @@ churn_test <- testing(split)
 
 ``` r
 churn_rec <- recipe(exited ~ ., data = churn_train) %>% 
-  step_log(all_numeric_predictors(), offset = 1) %>% # aplica transformação log1p 
+  step_log(all_numeric_predictors(), offset = 1) %>% # aplica transformação log1p (base apresenta 0's em algumas features)
   step_normalize(all_numeric_predictors()) %>% # normaliza os dados numericos
   step_dummy(all_nominal_predictors(), one_hot = TRUE) %>% # cria dummies de variaveis categoricas através de one hot encoding
   step_corr(all_numeric_predictors(), threshold = 0.8) %>% # retira variaveis com correlação > 0.8
@@ -400,21 +410,22 @@ churn_rec %>%
     ## # A tibble: 7,999 x 13
     ##    credit_score    age  tenure balance num_of_products estimated_salary exited
     ##           <dbl>  <dbl>   <dbl>   <dbl>           <dbl>            <dbl> <fct> 
-    ##  1      -0.367   0.335 -1.54     0.694          -0.950          0.420   Nao   
-    ##  2       0.545   0.141 -1.54    -1.33            0.880          0.236   Nao   
-    ##  3       1.61    1.11   0.720   -1.33            0.880         -2.02    Nao   
-    ##  4      -1.63    0.609 -0.0450   0.788           0.880          0.00899 Nao   
-    ##  5       0.403  -1.28  -0.876    0.778          -0.950         -0.0354  Nao   
-    ##  6      -1.29   -0.747  0.503    0.729           0.880          0.0774  Nao   
-    ##  7      -1.97   -0.390  1.24    -1.33            0.880         -1.05    Nao   
-    ##  8      -1.03   -1.57   0.252   -1.33            0.880          0.955   Nao   
-    ##  9      -0.0831 -0.278  0.720   -1.33            0.880         -0.120   Nao   
-    ## 10      -0.282   0.697 -0.408    0.789           0.880         -0.146   Nao   
+    ##  1      -0.366   0.323 -1.56     0.695          -0.946          0.418   Nao   
+    ##  2       0.544   0.129 -1.56    -1.33            0.889          0.235   Nao   
+    ##  3       1.82    0.507 -0.895    0.767          -0.946          0.0633  Nao   
+    ##  4      -1.63    0.596 -0.0573   0.789           0.889          0.00919 Nao   
+    ##  5       0.403  -1.28  -0.895    0.779          -0.946         -0.0349  Nao   
+    ##  6      -1.29   -0.754  0.494    0.730           0.889          0.0771  Nao   
+    ##  7      -1.68   -1.73  -0.423   -1.33            0.889          0.0284  Nao   
+    ##  8      -1.96   -0.399  1.24    -1.33            0.889         -1.04    Nao   
+    ##  9      -1.03   -1.58   0.242   -1.33            0.889          0.949   Nao   
+    ## 10      -0.0824 -0.288  0.713   -1.33            0.889         -0.119   Nao   
     ## # ... with 7,989 more rows, and 6 more variables: geography_France <dbl>,
     ## #   geography_Germany <dbl>, geography_Spain <dbl>, gender_Male <dbl>,
     ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>
 
 ``` r
+set.seed(148)
 trained_models <- train_classifiers(rec        = churn_rec, 
                                     resamples  = folds, 
                                     arrange_by = f_meas)
@@ -459,7 +470,7 @@ projeto a métrica a ser otimizada será o F1-score, que basicamente é uma
 média harmônica entre precision e recall, além de ser também muito útil
 para caso de classes desbalanceadas.
 
-O resultado de 0.5721 obtido pode ser melhorado utilizando alguma
+O resultado de 0.5853 obtido pode ser melhorado utilizando alguma
 técnica de balanceamento e otimização de hiperparâmetros do modelo.
 
 Isso será feito logo abaixo.
@@ -468,13 +479,14 @@ Isso será feito logo abaixo.
 
 ``` r
 xgb_spec <- boost_tree(mtry = tune(),
-                       trees = tune(),
-                       min_n = tune(),
-                       learn_rate = 0.02) %>% 
+                        trees = tune(),
+                        min_n = tune(),
+                        learn_rate = 0.02) %>% 
   set_engine("xgboost") %>% 
   set_mode("classification")
 
-xgb_wf <- workflow(churn_rec, xgb_spec)
+xgb_wf <- workflow(preprocessor = churn_rec,
+                    spec = xgb_spec)
 ```
 
 ## Balanceamento de classes
@@ -546,17 +558,6 @@ xgb_rs_balanced %>%
 
 ![](Churn_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
-``` r
-xgb_rs_balanced %>% 
-  collect_predictions() %>% 
-  mutate(exited = fct_rev(exited)) %>% 
-  ggplot(aes(.pred_Sim, fill = exited)) + 
-  geom_density(alpha = 0.75, size = 1) + 
-  scale_fill_manual(values = churn_colors)
-```
-
-![](Churn_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
-
 # Importância das variáveis
 
 ``` r
@@ -580,7 +581,7 @@ xgb_last_fit %>%
                        size = 1, horizontal = TRUE)
 ```
 
-![](Churn_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](Churn_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 Como esperado, a idade demonstrou ser a variável mais importante para
 predição do churn. Logo em seguida vem o número de produtos adquiridos

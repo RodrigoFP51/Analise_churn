@@ -28,7 +28,9 @@ knitr::opts_chunk$set(echo = TRUE,
 library(tidymodels)
 library(tidyverse)
 library(discrim)
+library(bonsai)
 library(patchwork)
+library(ggalt)
 library(janitor)
 library(vip)
 library(ggcorrplot)
@@ -40,7 +42,8 @@ theme_set(theme_light() +
                   axis.text = element_text(color = "black"),
                   axis.title = element_text(color = "black"),
                   axis.line = element_line(linetype = 7), 
-                  panel.grid = element_blank()))
+                  panel.grid = element_blank(),
+                  title = element_text(hjust = 0.5)))
 
 churn_colors <- c("#ed9613", "#7a05a1")
 select <- dplyr::select # Evitar conflito com MASS::select()
@@ -84,47 +87,47 @@ write_csv(x = data, "Dados/churn_processed.csv")
 ```
 
 ```{r}
-map_dfr(data, ~any(is.na(.x)))
+map_dfr(data, ~ sum(is.na(.x))) %>% t()
 ```
 
-Não há valores missing no conjunto de dados.
+- Não há valores missing no conjunto de dados. 
 
 ```{r}
 dim(data)
 ```
 
-Existem 10000 clientes cadastrados na base e 12 características para cada um deles.
+- Existem 10000 clientes cadastrados na base e 12 características para cada um deles.
 
 # Análise Exploratória
 
 ```{r}
+data %>%
+  pivot_longer(-where(is.character)) %>%
+  select(exited, name, value) %>%
+  ggplot(aes(value, fill = exited)) +
+  geom_density(alpha = 0.7, color = "black",
+               position = "identity", size = 1) +
+  facet_wrap(~name, scales = "free") +
+  scale_fill_manual(values = churn_colors) +
+  labs(x='', y='Densidade', fill = "Churn")
+
 # data %>% 
 #   pivot_longer(-where(is.character)) %>%
 #   select(exited, name, value) %>% 
-#   ggplot(aes(value, fill = exited)) +
-#   geom_density(alpha = 0.7, color = "black",
-#                position = "identity", size = 1) +
-#   facet_wrap(~name, scales = "free") +
+#   ggplot(aes(exited, value, fill = exited)) +
+#   geom_boxplot(alpha = 0.75) +
+#   stat_summary(geom = "point", fun = mean, size = 2) +
 #   scale_fill_manual(values = churn_colors) +
-#   labs(x='', y='Densidade', fill = "Churn")
-
-data %>% 
-  pivot_longer(-where(is.character)) %>%
-  select(exited, name, value) %>% 
-  ggplot(aes(exited, value, fill = exited)) +
-  geom_boxplot(alpha = 0.75) +
-  stat_summary(geom = "point", fun = mean, size = 2, color = "dodgerblue") +
-  scale_fill_manual(values = churn_colors) +
-  facet_wrap(vars(name), scales = "free") +
-  theme(legend.position = "top") 
+#   facet_wrap(vars(name), scales = "free") +
+#   theme(legend.position = "top") 
 ```
 
 Ao analisar as variáveis numéricas pela categoria de **churn** é possível entender alguns padrões:
 
--   clientes mais velhos costumam ter uma taxa churn maior.  
--   existe um grande número de clientes que tem um saldo de conta zerado.  
--   número de produtos parece haver um grande concentração de clientes que não deram churn e adquiriram 2 produtos.  
--   as demais variáveis não demonstram ter grande efeito.
+-   Clientes mais velhos costumam ter uma taxa churn maior.  
+-   Existe um grande número de clientes que tem um saldo de conta zerado.  
+-   O número de produtos parece haver um grande concentração de clientes que não deram churn e adquiriram 2 produtos.  
+-   As demais variáveis não demonstram ter grande efeito.
 
 ```{r}
 data %>% 
@@ -137,7 +140,8 @@ data %>%
             vjust = 1.5,
             size = 7, 
             color = "white") +
-  labs(y='Proporção', x='Churn')
+  labs(y='Proporção', x='Churn',
+       title = "Proporção de churn na base de dados")
 
 ```
 
@@ -150,9 +154,10 @@ data %>%
   facet_wrap(~geography) + 
   scale_fill_manual(values = churn_colors) +
   scale_y_continuous(breaks = seq(10,100,10)) +
-  theme(legend.position = "top") +
+  theme(legend.position = "bottom") +
   labs(x='', y='Idade', 
-       fill = "Churn")
+       fill = "Churn",
+       title = "Efeito da idadee localização no churn")
 ```
 
 -   A variável idade apresenta outliers.
@@ -190,7 +195,7 @@ data %>%
   scale_fill_manual(values = churn_colors) +
   scale_y_continuous(labels = scales::percent) +
   facet_wrap(~variable, scales = "free", ncol = 1) +
-  theme(legend.position = "top") +
+  theme(legend.position = "bottom") +
   coord_flip() +
   labs(x='', y='', fill = "Churn")
 ```
@@ -263,7 +268,7 @@ train_classifiers <- function(rec, resamples, arrange_by = accuracy){
   
   #lgbm_spec <- parsnip::boost_tree() %>% 
   #  set_mode("classification") %>% 
-  #  set_engine("lightgbm")
+  # set_engine("lightgbm")
   
   models = list(glm      = glm_spec,
                 naiveb   = naiveb_spec,
@@ -322,7 +327,7 @@ churn_test <- testing(split)
 
 ```{r}
 churn_rec <- recipe(exited ~ ., data = churn_train) %>% 
-  step_log(all_numeric_predictors(), offset = 1) %>% # aplica transformação log1p 
+  step_log(all_numeric_predictors(), offset = 1) %>% # aplica transformação log1p (base apresenta 0's em algumas features)
   step_normalize(all_numeric_predictors()) %>% # normaliza os dados numericos
   step_dummy(all_nominal_predictors(), one_hot = TRUE) %>% # cria dummies de variaveis categoricas através de one hot encoding
   step_corr(all_numeric_predictors(), threshold = 0.8) %>% # retira variaveis com correlação > 0.8
@@ -340,6 +345,7 @@ churn_rec %>%
 ```
 
 ```{r, fig.height=8, fig.width=8, cache=TRUE}
+set.seed(148)
 trained_models <- train_classifiers(rec        = churn_rec, 
                                     resamples  = folds, 
                                     arrange_by = f_meas)
@@ -381,13 +387,14 @@ Isso será feito logo abaixo.
 
 ```{r}
 xgb_spec <- boost_tree(mtry = tune(),
-                       trees = tune(),
-                       min_n = tune(),
-                       learn_rate = 0.02) %>% 
+                        trees = tune(),
+                        min_n = tune(),
+                        learn_rate = 0.02) %>% 
   set_engine("xgboost") %>% 
   set_mode("classification")
 
-xgb_wf <- workflow(churn_rec, xgb_spec)
+xgb_wf <- workflow(preprocessor = churn_rec,
+                    spec = xgb_spec)
 ```
 
 ## Balanceamento de classes
@@ -436,15 +443,6 @@ xgb_rs_balanced %>%
   ggplot2::autoplot(type = "heatmap") +
   ggplot2::scale_fill_viridis_c(option = "E")
 
-```
-
-```{r}
-xgb_rs_balanced %>% 
-  collect_predictions() %>% 
-  mutate(exited = fct_rev(exited)) %>% 
-  ggplot(aes(.pred_Sim, fill = exited)) + 
-  geom_density(alpha = 0.75, size = 1) + 
-  scale_fill_manual(values = churn_colors)
 ```
 
 # Importância das variáveis
