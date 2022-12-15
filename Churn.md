@@ -37,6 +37,42 @@ Desta forma, se torna essencial as empresas acompanharem esse
 indicativo, visto que a perda de clientes impacta diretamente os
 resultados financeiros da empresa e sua imagem no geral.
 
+Existem várias estratégias que as empresas podem usar para evitar o
+churn de clientes. Algumas abordagens comuns incluem:
+
+-   Melhorando a experiência do cliente: ao fornecer produtos e serviços
+    de alta qualidade, respondendo rapidamente às perguntas dos clientes
+    e abordando quaisquer problemas ou preocupações que os clientes
+    possam ter, as empresas podem ajudar a manter os clientes
+    satisfeitos e reduzir a probabilidade de churn.
+
+-   Oferecer incentivos e recompensas: as empresas podem oferecer
+    incentivos e recompensas aos clientes que permanecem com eles, como
+    programas de fidelidade, descontos ou ofertas especiais. Isso pode
+    ajudar a fazer com que os clientes se sintam valorizados e
+    apreciados, além de incentivá-los a continuar fazendo negócios com a
+    empresa.
+
+-   Coleta de feedback do cliente: ao solicitar regularmente feedback
+    dos clientes, as empresas podem identificar possíveis problemas ou
+    preocupações que os clientes possam ter e tomar medidas para
+    resolvê-los antes que eles gerem rotatividade. Isso pode incluir
+    pesquisas ou outros métodos de coleta de feedback do cliente.
+
+-   Construir relacionamentos fortes: Construir relacionamentos fortes e
+    pessoais com os clientes pode ajudar a aumentar sua fidelidade e
+    reduzir a probabilidade de rotatividade. Isso pode envolver
+    comunicação regular com os clientes, interações personalizadas e
+    fornecimento de suporte e assistência personalizados quando
+    necessário.
+
+No geral, prevenir a rotatividade de clientes requer uma combinação de
+estratégias proativas e foco em fornecer experiências de alta qualidade
+aos clientes. Ao tomar medidas para identificar possíveis problemas e
+resolvê-los rapidamente, as empresas podem ajudar a reduzir a
+rotatividade de clientes e melhorar suas taxas gerais de retenção de
+clientes.
+
 O objetivo deste projeto é utilizar técnicas de machine learning para
 prever o churn de uma empresa e entender quais são as variáveis que mais
 influenciam nisso.
@@ -99,21 +135,15 @@ write_csv(x = data, "Dados/churn_processed.csv")
 ```
 
 ``` r
-map_dfr(data, ~ sum(is.na(.x))) %>% t()
+map_dbl(data, ~ sum(is.na(.x)))
 ```
 
-    ##                  [,1]
-    ## credit_score        0
-    ## geography           0
-    ## gender              0
-    ## age                 0
-    ## tenure              0
-    ## balance             0
-    ## num_of_products     0
-    ## has_cr_card         0
-    ## is_active_member    0
-    ## estimated_salary    0
-    ## exited              0
+    ##     credit_score        geography           gender              age 
+    ##                0                0                0                0 
+    ##           tenure          balance  num_of_products      has_cr_card 
+    ##                0                0                0                0 
+    ## is_active_member estimated_salary           exited 
+    ##                0                0                0
 
 -   Não há valores missing no conjunto de dados.
 
@@ -195,7 +225,7 @@ data %>%
   theme(legend.position = "bottom") +
   labs(x='', y='Idade', 
        fill = "Churn",
-       title = "Efeito da idadee localização no churn")
+       title = "Efeito da idade e localização na taxa de churn")
 ```
 
 ![](Churn_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
@@ -408,21 +438,22 @@ churn_rec %>%
 ```
 
     ## # A tibble: 7,999 x 13
-    ##    credit_score    age  tenure balance num_of_products estimated_salary exited
-    ##           <dbl>  <dbl>   <dbl>   <dbl>           <dbl>            <dbl> <fct> 
-    ##  1      -0.366   0.323 -1.56     0.695          -0.946          0.418   Nao   
-    ##  2       0.544   0.129 -1.56    -1.33            0.889          0.235   Nao   
-    ##  3       1.82    0.507 -0.895    0.767          -0.946          0.0633  Nao   
-    ##  4      -1.63    0.596 -0.0573   0.789           0.889          0.00919 Nao   
-    ##  5       0.403  -1.28  -0.895    0.779          -0.946         -0.0349  Nao   
-    ##  6      -1.29   -0.754  0.494    0.730           0.889          0.0771  Nao   
-    ##  7      -1.68   -1.73  -0.423   -1.33            0.889          0.0284  Nao   
-    ##  8      -1.96   -0.399  1.24    -1.33            0.889         -1.04    Nao   
-    ##  9      -1.03   -1.58   0.242   -1.33            0.889          0.949   Nao   
-    ## 10      -0.0824 -0.288  0.713   -1.33            0.889         -0.119   Nao   
-    ## # ... with 7,989 more rows, and 6 more variables: geography_France <dbl>,
-    ## #   geography_Germany <dbl>, geography_Spain <dbl>, gender_Male <dbl>,
-    ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>
+    ##    credi~1    age  tenure balance num_o~2 estim~3 exited geogr~4 geogr~5 geogr~6
+    ##      <dbl>  <dbl>   <dbl>   <dbl>   <dbl>   <dbl> <fct>    <dbl>   <dbl>   <dbl>
+    ##  1  0.549   0.127 -1.55    -1.32    0.892  0.245  Nao          1       0       0
+    ##  2  1.83    0.508 -0.886    0.771  -0.950  0.0770 Nao          0       0       1
+    ##  3  1.61    1.10   0.716   -1.32    0.892 -1.95   Nao          1       0       0
+    ##  4 -1.63    0.598 -0.0514   0.793   0.892  0.0239 Nao          1       0       0
+    ##  5  0.407  -1.30  -0.886    0.784  -0.950 -0.0192 Nao          1       0       0
+    ##  6 -1.97   -0.407  1.24    -1.32    0.892 -1.01   Nao          1       0       0
+    ##  7 -1.03   -1.60   0.246   -1.32    0.892  0.945  Nao          1       0       0
+    ##  8 -0.0793 -0.294  0.716   -1.32    0.892 -0.102  Nao          0       0       1
+    ##  9 -0.278   0.686 -0.416    0.795   0.892 -0.126  Nao          0       1       0
+    ## 10 -1.03   -1.75   1.08    -1.32    0.892 -1.60   Nao          0       0       1
+    ## # ... with 7,989 more rows, 3 more variables: gender_Male <dbl>,
+    ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, and abbreviated variable
+    ## #   names 1: credit_score, 2: num_of_products, 3: estimated_salary,
+    ## #   4: geography_France, 5: geography_Germany, 6: geography_Spain
 
 ``` r
 set.seed(148)
@@ -517,16 +548,21 @@ churn_rec_balanced <- churn_rec %>%
 
 xgb_wf_balanced <- workflow(churn_rec_balanced, xgb_spec)
 
+xgb_grid <- crossing(mtry = c(3,4),
+                     trees = seq(400,800,200),
+                     min_n = seq(2,6,2),
+                     over_ratio = c(0.5, 0.75, 1),
+                     neighbors = c(2,3))
+                     
 xgb_rs_balanced <- tune_grid(xgb_wf_balanced, 
                     folds, 
-                    grid = crossing(mtry = c(3,4),
-                                    trees = seq(400,800,200),
-                                    min_n = seq(2,6,2),
-                                    over_ratio = c(0.5, 0.75, 1),
-                                    neighbors = c(2,3)),
+                    grid = xgb_grid,
                     metrics = metric_set(roc_auc, f_meas),
                     control = control_grid(save_pred = TRUE))
 ```
+
+Logo em seguida é mostrado o conjunto de parâmetros que trouxeram o
+melhor resultado para o modelo.
 
 ``` r
 xgb_rs_balanced %>% 
@@ -538,11 +574,11 @@ xgb_rs_balanced %>%
 
 | mtry | trees | min\_n | over\_ratio | neighbors | F1-Score |
 |-----:|------:|-------:|------------:|----------:|---------:|
-|    3 |   400 |      4 |         0.5 |         3 |    0.615 |
-|    3 |   600 |      4 |         0.5 |         3 |    0.615 |
-|    3 |   800 |      4 |         0.5 |         3 |    0.615 |
-|    3 |   400 |      6 |         0.5 |         3 |    0.613 |
-|    3 |   600 |      6 |         0.5 |         3 |    0.613 |
+|    4 |   400 |      4 |        0.75 |         2 |    0.616 |
+|    3 |   600 |      6 |        0.50 |         3 |    0.615 |
+|    4 |   400 |      4 |        0.50 |         3 |    0.614 |
+|    3 |   400 |      4 |        0.50 |         3 |    0.614 |
+|    3 |   400 |      2 |        0.50 |         2 |    0.614 |
 
 Melhores parâmetros para F1-Score
 
@@ -574,7 +610,7 @@ xgb_last_fit %>%
   extract_workflow() %>% 
   extract_fit_parsnip() %>%
   vip::vi() %>% 
-  mutate(Variable = str_replace_all(Variable, "_", "-") %>% str_to_title(),
+  mutate(Variable = str_replace_all(Variable, "_", " ") %>% str_to_title(),
          Variable = fct_reorder(Variable, Importance)) %>% 
   ggplot(aes(Importance, Variable)) +
   ggalt::geom_lollipop(point.colour = churn_colors[2], point.size = 7,

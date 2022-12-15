@@ -16,6 +16,18 @@ Essa desistência pode acontecer por diversos motivos, como insatisfação dos c
 
 Desta forma, se torna essencial as empresas acompanharem esse indicativo, visto que a perda de clientes impacta diretamente os resultados financeiros da empresa e sua imagem no geral.
 
+Existem várias estratégias que as empresas podem usar para evitar o churn de clientes. Algumas abordagens comuns incluem:
+
+-  Melhorando a experiência do cliente: ao fornecer produtos e serviços de alta qualidade, respondendo rapidamente às perguntas dos clientes e abordando quaisquer problemas ou preocupações que os clientes possam ter, as empresas podem ajudar a manter os clientes satisfeitos e reduzir a probabilidade de churn.
+
+-  Oferecer incentivos e recompensas: as empresas podem oferecer incentivos e recompensas aos clientes que permanecem com eles, como programas de fidelidade, descontos ou ofertas especiais. Isso pode ajudar a fazer com que os clientes se sintam valorizados e apreciados, além de incentivá-los a continuar fazendo negócios com a empresa.
+
+-  Coleta de feedback do cliente: ao solicitar regularmente feedback dos clientes, as empresas podem identificar possíveis problemas ou preocupações que os clientes possam ter e tomar medidas para resolvê-los antes que eles gerem rotatividade. Isso pode incluir pesquisas ou outros métodos de coleta de feedback do cliente.
+
+-  Construir relacionamentos fortes: Construir relacionamentos fortes e pessoais com os clientes pode ajudar a aumentar sua fidelidade e reduzir a probabilidade de rotatividade. Isso pode envolver comunicação regular com os clientes, interações personalizadas e fornecimento de suporte e assistência personalizados quando necessário.
+
+No geral, prevenir a rotatividade de clientes requer uma combinação de estratégias proativas e foco em fornecer experiências de alta qualidade aos clientes. Ao tomar medidas para identificar possíveis problemas e resolvê-los rapidamente, as empresas podem ajudar a reduzir a rotatividade de clientes e melhorar suas taxas gerais de retenção de clientes.
+
 O objetivo deste projeto é utilizar técnicas de machine learning para prever o churn de uma empresa e entender quais são as variáveis que mais influenciam nisso.
 
 ```{r setup, include=FALSE}
@@ -28,7 +40,6 @@ knitr::opts_chunk$set(echo = TRUE,
 library(tidymodels)
 library(tidyverse)
 library(discrim)
-library(bonsai)
 library(patchwork)
 library(ggalt)
 library(janitor)
@@ -87,7 +98,8 @@ write_csv(x = data, "Dados/churn_processed.csv")
 ```
 
 ```{r}
-map_dfr(data, ~ sum(is.na(.x))) %>% t()
+map_dbl(data, ~ sum(is.na(.x)))
+
 ```
 
 - Não há valores missing no conjunto de dados. 
@@ -157,7 +169,7 @@ data %>%
   theme(legend.position = "bottom") +
   labs(x='', y='Idade', 
        fill = "Churn",
-       title = "Efeito da idadee localização no churn")
+       title = "Efeito da idade e localização na taxa de churn")
 ```
 
 -   A variável idade apresenta outliers.
@@ -415,16 +427,20 @@ churn_rec_balanced <- churn_rec %>%
 
 xgb_wf_balanced <- workflow(churn_rec_balanced, xgb_spec)
 
+xgb_grid <- crossing(mtry = c(3,4),
+                     trees = seq(400,800,200),
+                     min_n = seq(2,6,2),
+                     over_ratio = c(0.5, 0.75, 1),
+                     neighbors = c(2,3))
+                     
 xgb_rs_balanced <- tune_grid(xgb_wf_balanced, 
                     folds, 
-                    grid = crossing(mtry = c(3,4),
-                                    trees = seq(400,800,200),
-                                    min_n = seq(2,6,2),
-                                    over_ratio = c(0.5, 0.75, 1),
-                                    neighbors = c(2,3)),
+                    grid = xgb_grid,
                     metrics = metric_set(roc_auc, f_meas),
                     control = control_grid(save_pred = TRUE))
 ```
+
+Logo em seguida é mostrado o conjunto de parâmetros que trouxeram o melhor resultado para o modelo.  
 
 ```{r}
 xgb_rs_balanced %>% 
@@ -461,7 +477,7 @@ xgb_last_fit %>%
   extract_workflow() %>% 
   extract_fit_parsnip() %>%
   vip::vi() %>% 
-  mutate(Variable = str_replace_all(Variable, "_", "-") %>% str_to_title(),
+  mutate(Variable = str_replace_all(Variable, "_", " ") %>% str_to_title(),
          Variable = fct_reorder(Variable, Importance)) %>% 
   ggplot(aes(Importance, Variable)) +
   ggalt::geom_lollipop(point.colour = churn_colors[2], point.size = 7,
@@ -469,3 +485,6 @@ xgb_last_fit %>%
 ```
 
 Como esperado, a idade demonstrou ser a variável mais importante para predição do churn. Logo em seguida vem o número de produtos adquiridos pelo cliente e os clientes que são ativos.
+
+
+
