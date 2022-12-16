@@ -15,8 +15,8 @@ Rodrigo F. Pizzinato
     -   [Especificação do modelo
         XGBoost](#especificação-do-modelo-xgboost)
     -   [Balanceamento de classes](#balanceamento-de-classes)
--   [Matriz de confusão com dados
-    balanceados](#matriz-de-confusão-com-dados-balanceados)
+-   [Matriz de confusão com classes
+    balanceadas](#matriz-de-confusão-com-classes-balanceadas)
 -   [Importância das variáveis](#importância-das-variáveis)
 
 # O problema de negócio
@@ -419,7 +419,8 @@ churn_rec <- recipe(exited ~ ., data = churn_train) %>%
   step_normalize(all_numeric_predictors()) %>% # normaliza os dados numericos
   step_dummy(all_nominal_predictors(), one_hot = TRUE) %>% # cria dummies de variaveis categoricas através de one hot encoding
   step_corr(all_numeric_predictors(), threshold = 0.8) %>% # retira variaveis com correlação > 0.8
-  step_zv(all_predictors()) # retira variaveis com variância zero 
+  step_zv(all_predictors()) %>% # retira variaveis com variância zero
+  step_adasyn(exited)
 ```
 
 Nesta etapa, os dados são ajustado da forma correta para os modelos.
@@ -437,23 +438,23 @@ churn_rec %>%
   juice() 
 ```
 
-    ## # A tibble: 7,999 x 13
-    ##    credi~1    age  tenure balance num_o~2 estim~3 exited geogr~4 geogr~5 geogr~6
-    ##      <dbl>  <dbl>   <dbl>   <dbl>   <dbl>   <dbl> <fct>    <dbl>   <dbl>   <dbl>
-    ##  1  0.549   0.127 -1.55    -1.32    0.892  0.245  Nao          1       0       0
-    ##  2  1.83    0.508 -0.886    0.771  -0.950  0.0770 Nao          0       0       1
-    ##  3  1.61    1.10   0.716   -1.32    0.892 -1.95   Nao          1       0       0
-    ##  4 -1.63    0.598 -0.0514   0.793   0.892  0.0239 Nao          1       0       0
-    ##  5  0.407  -1.30  -0.886    0.784  -0.950 -0.0192 Nao          1       0       0
-    ##  6 -1.97   -0.407  1.24    -1.32    0.892 -1.01   Nao          1       0       0
-    ##  7 -1.03   -1.60   0.246   -1.32    0.892  0.945  Nao          1       0       0
-    ##  8 -0.0793 -0.294  0.716   -1.32    0.892 -0.102  Nao          0       0       1
-    ##  9 -0.278   0.686 -0.416    0.795   0.892 -0.126  Nao          0       1       0
-    ## 10 -1.03   -1.75   1.08    -1.32    0.892 -1.60   Nao          0       0       1
-    ## # ... with 7,989 more rows, 3 more variables: gender_Male <dbl>,
-    ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, and abbreviated variable
-    ## #   names 1: credit_score, 2: num_of_products, 3: estimated_salary,
-    ## #   4: geography_France, 5: geography_Germany, 6: geography_Spain
+    ## # A tibble: 12,740 x 13
+    ##    credit_score    age  tenure balance num_of_~1 estim~2 geogr~3 geogr~4 geogr~5
+    ##           <dbl>  <dbl>   <dbl>   <dbl>     <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
+    ##  1       0.551   0.140 -1.55    -1.32      0.873  0.242        1       0       0
+    ##  2       1.83    0.518 -0.884    0.769    -0.950  0.0707       0       0       1
+    ##  3      -1.63    0.607 -0.0506   0.791     0.873  0.0167       1       0       0
+    ##  4       0.408  -1.27  -0.884    0.782    -0.950 -0.0273       1       0       0
+    ##  5      -1.29   -0.744  0.498    0.732     0.873  0.0845       1       0       0
+    ##  6      -1.68   -1.72  -0.415   -1.32      0.873  0.0359       0       0       1
+    ##  7      -1.97   -0.389  1.24    -1.32      0.873 -1.04         1       0       0
+    ##  8      -1.03   -1.57   0.247   -1.32      0.873  0.955        1       0       0
+    ##  9      -0.0786 -0.277  0.716   -1.32      0.873 -0.112        0       0       1
+    ## 10      -0.278   0.694 -0.415    0.792     0.873 -0.137        0       1       0
+    ## # ... with 12,730 more rows, 4 more variables: gender_Male <dbl>,
+    ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, exited <fct>, and
+    ## #   abbreviated variable names 1: num_of_products, 2: estimated_salary,
+    ## #   3: geography_France, 4: geography_Germany, 5: geography_Spain
 
 ``` r
 set.seed(148)
@@ -582,7 +583,7 @@ xgb_rs_balanced %>%
 
 Melhores parâmetros para F1-Score
 
-# Matriz de confusão com dados balanceados
+# Matriz de confusão com classes balanceadas
 
 ``` r
 xgb_rs_balanced %>% 
@@ -614,7 +615,9 @@ xgb_last_fit %>%
          Variable = fct_reorder(Variable, Importance)) %>% 
   ggplot(aes(Importance, Variable)) +
   ggalt::geom_lollipop(point.colour = churn_colors[2], point.size = 7,
-                       size = 1, horizontal = TRUE)
+                       size = 1, horizontal = TRUE) + 
+  labs(x='',y='',
+       title = "Importância das variáveis (XGBoost)")
 ```
 
 ![](Churn_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->

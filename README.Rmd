@@ -14,7 +14,8 @@ knitr::opts_chunk$set(
 # Análise de churn 
 ## Objetivo do projeto 
 
-Para visualizar o projeto [clique aqui](https://github.com/RodrigoFP51/Analise_churn/blob/master/Churn.md)\ 
+
+Para visualizar o projeto [clique aqui](https://github.com/RodrigoFP51/Analise_churn/blob/master/Churn.md)  
 
 
 

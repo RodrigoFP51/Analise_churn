@@ -43,6 +43,7 @@ library(discrim)
 library(patchwork)
 library(ggalt)
 library(janitor)
+library(themis)
 library(vip)
 library(ggcorrplot)
 library(DataExplorer)
@@ -343,7 +344,8 @@ churn_rec <- recipe(exited ~ ., data = churn_train) %>%
   step_normalize(all_numeric_predictors()) %>% # normaliza os dados numericos
   step_dummy(all_nominal_predictors(), one_hot = TRUE) %>% # cria dummies de variaveis categoricas através de one hot encoding
   step_corr(all_numeric_predictors(), threshold = 0.8) %>% # retira variaveis com correlação > 0.8
-  step_zv(all_predictors()) # retira variaveis com variância zero 
+  step_zv(all_predictors()) %>% # retira variaveis com variância zero
+  step_adasyn(exited)
 ```
 
 Nesta etapa, os dados são ajustado da forma correta para os modelos. Portanto, a normalização das variáveis numéricas, criação de dummies para variáveis categóricas, etc. são tarefas comumente utilizadas nesta etapa. Neste caso, a criação de dummies foi feita antes do filtro de variáveis correlacionadas, pois após o processo de criação de dummies, as novas features podem assumir altas correlações entre si.
@@ -450,7 +452,7 @@ xgb_rs_balanced %>%
                caption = "Melhores parâmetros para F1-Score")
 ```
 
-# Matriz de confusão com dados balanceados
+# Matriz de confusão com classes balanceadas
 
 ```{r}
 xgb_rs_balanced %>% 
@@ -481,7 +483,9 @@ xgb_last_fit %>%
          Variable = fct_reorder(Variable, Importance)) %>% 
   ggplot(aes(Importance, Variable)) +
   ggalt::geom_lollipop(point.colour = churn_colors[2], point.size = 7,
-                       size = 1, horizontal = TRUE)
+                       size = 1, horizontal = TRUE) + 
+  labs(x='',y='',
+       title = "Importância das variáveis (XGBoost)")
 ```
 
 Como esperado, a idade demonstrou ser a variável mais importante para predição do churn. Logo em seguida vem o número de produtos adquiridos pelo cliente e os clientes que são ativos.
