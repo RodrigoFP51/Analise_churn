@@ -17,6 +17,7 @@ Rodrigo F. Pizzinato
     -   [Balanceamento de classes](#balanceamento-de-classes)
 -   [Matriz de confusão com classes
     balanceadas](#matriz-de-confusão-com-classes-balanceadas)
+-   [Último fit do modelo](#último-fit-do-modelo)
 -   [Importância das variáveis](#importância-das-variáveis)
 
 # O problema de negócio
@@ -145,7 +146,7 @@ map_dbl(data, ~ sum(is.na(.x)))
     ## is_active_member estimated_salary           exited 
     ##                0                0                0
 
--   Não há valores missing no conjunto de dados.
+-   Não há valores faltantes no conjunto de dados.
 
 ``` r
 dim(data)
@@ -441,16 +442,16 @@ churn_rec %>%
     ## # A tibble: 12,740 x 13
     ##    credit_score    age  tenure balance num_of_~1 estim~2 geogr~3 geogr~4 geogr~5
     ##           <dbl>  <dbl>   <dbl>   <dbl>     <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
-    ##  1       0.551   0.140 -1.55    -1.32      0.873  0.242        1       0       0
-    ##  2       1.83    0.518 -0.884    0.769    -0.950  0.0707       0       0       1
-    ##  3      -1.63    0.607 -0.0506   0.791     0.873  0.0167       1       0       0
-    ##  4       0.408  -1.27  -0.884    0.782    -0.950 -0.0273       1       0       0
-    ##  5      -1.29   -0.744  0.498    0.732     0.873  0.0845       1       0       0
-    ##  6      -1.68   -1.72  -0.415   -1.32      0.873  0.0359       0       0       1
-    ##  7      -1.97   -0.389  1.24    -1.32      0.873 -1.04         1       0       0
-    ##  8      -1.03   -1.57   0.247   -1.32      0.873  0.955        1       0       0
-    ##  9      -0.0786 -0.277  0.716   -1.32      0.873 -0.112        0       0       1
-    ## 10      -0.278   0.694 -0.415    0.792     0.873 -0.137        0       1       0
+    ##  1      -0.366   0.329 -1.54     0.698    -0.944  0.420        0       0       1
+    ##  2       0.549   0.135 -1.54    -1.32      0.880  0.239        1       0       0
+    ##  3       1.83    0.514 -0.877    0.770    -0.944  0.0679       0       0       1
+    ##  4       1.61    1.10   0.722   -1.32      0.880 -1.99         1       0       0
+    ##  5      -1.64    0.604 -0.0441   0.792     0.880  0.0142       1       0       0
+    ##  6       0.407  -1.28  -0.877    0.783    -0.944 -0.0296       1       0       0
+    ##  7      -1.69   -1.73  -0.408   -1.32      0.880  0.0333       0       0       1
+    ##  8      -1.97   -0.396  1.24    -1.32      0.880 -1.03         1       0       0
+    ##  9      -1.04   -1.58   0.253   -1.32      0.880  0.947        1       0       0
+    ## 10      -0.0810 -0.284  0.722   -1.32      0.880 -0.113        0       0       1
     ## # ... with 12,730 more rows, 4 more variables: gender_Male <dbl>,
     ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, exited <fct>, and
     ## #   abbreviated variable names 1: num_of_products, 2: estimated_salary,
@@ -590,18 +591,35 @@ xgb_rs_balanced %>%
   collect_predictions() %>% 
   conf_mat(exited, .pred_class) %>% 
   ggplot2::autoplot(type = "heatmap") +
-  ggplot2::scale_fill_viridis_c(option = "E")
+  ggplot2::scale_fill_gradient(low = "#b132e3", high = "#631b80")
 ```
 
 ![](Churn_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
 
-# Importância das variáveis
+A matriz de confusão indica que há um maior número de falso negativo do
+que falso positivo, ou seja, um precision maior que o recall.
+
+![matriz confusao](Churn_files/figure-gfm/matriz-de-confusao.png)  
+Sendo  
+$$Precision = \frac{VP}{VP+FN}$$ E $$Recall = \frac{VP}{VP+FP}$$
+
+Detectar que um cliente deu churn quando na verdade ele não deu, ou o
+contrário, que não ocorreu o churn mas na realidade ocorreu, são
+situações que envolvem um custo para a empresa. De toda forma, as duas
+devem ser evitadas, por isso acredito que a escolha da métrica F1-score
+continua sendo a mais relevante nesse caso.
+
+# Último fit do modelo
 
 ``` r
 xgb_last_fit <- xgb_wf_balanced %>% 
   finalize_workflow(select_best(xgb_rs_balanced, metric = "f_meas")) %>% 
-  last_fit(split)
+  last_fit(split, metrics = metric_set(accuracy, f_meas, recall, precision))
+```
 
+# Importância das variáveis
+
+``` r
 # xgb_last_fit %>%
 #   extract_workflow() %>%
 #   extract_fit_parsnip() %>%
@@ -620,7 +638,7 @@ xgb_last_fit %>%
        title = "Importância das variáveis (XGBoost)")
 ```
 
-![](Churn_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](Churn_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
 
 Como esperado, a idade demonstrou ser a variável mais importante para
 predição do churn. Logo em seguida vem o número de produtos adquiridos

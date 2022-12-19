@@ -103,7 +103,7 @@ map_dbl(data, ~ sum(is.na(.x)))
 
 ```
 
-- Não há valores missing no conjunto de dados. 
+- Não há valores faltantes no conjunto de dados. 
 
 ```{r}
 dim(data)
@@ -459,17 +459,31 @@ xgb_rs_balanced %>%
   collect_predictions() %>% 
   conf_mat(exited, .pred_class) %>% 
   ggplot2::autoplot(type = "heatmap") +
-  ggplot2::scale_fill_viridis_c(option = "E")
+  ggplot2::scale_fill_gradient(low = "#c2c2d6", high = "#3d3d5c")
 
+```
+
+A matriz de confusão indica que há um maior número de falso negativo do que falso positivo, ou seja, um precision maior que o recall.
+
+![matriz confusao](Churn_files/figure-gfm/matriz-de-confusao.png)  
+Sendo  
+$$Precision = \frac{VP}{VP+FN}$$
+E
+$$Recall = \frac{VP}{VP+FP}$$
+
+Detectar que um cliente deu churn quando na verdade ele não deu, ou o contrário, que não ocorreu o churn mas na realidade ocorreu, são situações que envolvem um custo para a empresa. De toda forma, as duas devem ser evitadas, por isso acredito que a escolha da métrica F1-score continua sendo a mais relevante nesse caso.
+
+# Último fit do modelo
+
+```{r}
+xgb_last_fit <- xgb_wf_balanced %>% 
+  finalize_workflow(select_best(xgb_rs_balanced, metric = "f_meas")) %>% 
+  last_fit(split, metrics = metric_set(accuracy, f_meas, recall, precision))
 ```
 
 # Importância das variáveis
 
 ```{r}
-xgb_last_fit <- xgb_wf_balanced %>% 
-  finalize_workflow(select_best(xgb_rs_balanced, metric = "f_meas")) %>% 
-  last_fit(split)
-
 # xgb_last_fit %>%
 #   extract_workflow() %>%
 #   extract_fit_parsnip() %>%
