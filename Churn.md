@@ -17,7 +17,7 @@ Rodrigo F. Pizzinato
     -   [Balanceamento de classes](#balanceamento-de-classes)
 -   [Matriz de confusão com classes
     balanceadas](#matriz-de-confusão-com-classes-balanceadas)
--   [Último fit do modelo](#último-fit-do-modelo)
+-   [Modelo Final](#modelo-final)
 -   [Importância das variáveis](#importância-das-variáveis)
 
 # O problema de negócio
@@ -436,22 +436,22 @@ O dataset criado após esse processo é mostrado abaixo.
 ``` r
 churn_rec %>% 
   prep() %>% 
-  juice() 
+  juice()
 ```
 
     ## # A tibble: 12,740 x 13
     ##    credit_score    age  tenure balance num_of_~1 estim~2 geogr~3 geogr~4 geogr~5
     ##           <dbl>  <dbl>   <dbl>   <dbl>     <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
-    ##  1      -0.366   0.329 -1.54     0.698    -0.944  0.420        0       0       1
-    ##  2       0.549   0.135 -1.54    -1.32      0.880  0.239        1       0       0
-    ##  3       1.83    0.514 -0.877    0.770    -0.944  0.0679       0       0       1
-    ##  4       1.61    1.10   0.722   -1.32      0.880 -1.99         1       0       0
-    ##  5      -1.64    0.604 -0.0441   0.792     0.880  0.0142       1       0       0
-    ##  6       0.407  -1.28  -0.877    0.783    -0.944 -0.0296       1       0       0
-    ##  7      -1.69   -1.73  -0.408   -1.32      0.880  0.0333       0       0       1
-    ##  8      -1.97   -0.396  1.24    -1.32      0.880 -1.03         1       0       0
-    ##  9      -1.04   -1.58   0.253   -1.32      0.880  0.947        1       0       0
-    ## 10      -0.0810 -0.284  0.722   -1.32      0.880 -0.113        0       0       1
+    ##  1       -0.357  0.326 -1.54     0.690    -0.945  0.418        0       0       1
+    ##  2        0.549  0.133 -1.54    -1.34      0.886  0.236        1       0       0
+    ##  3        1.82   0.510 -0.882    0.762    -0.945  0.0646       0       0       1
+    ##  4        1.60   1.09   0.722   -1.34      0.886 -2.00         1       0       0
+    ##  5       -1.61   0.599 -0.0464   0.784     0.886  0.0107       1       0       0
+    ##  6        0.408 -1.28  -0.882    0.775    -0.945 -0.0333       1       0       0
+    ##  7       -1.27  -0.751  0.504    0.725     0.886  0.0785       1       0       0
+    ##  8       -1.67  -1.73  -0.411   -1.34      0.886  0.0299       0       0       1
+    ##  9       -1.95  -0.396  1.24    -1.34      0.886 -1.04         1       0       0
+    ## 10       -1.02  -1.57   0.252   -1.34      0.886  0.948        1       0       0
     ## # ... with 12,730 more rows, 4 more variables: gender_Male <dbl>,
     ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, exited <fct>, and
     ## #   abbreviated variable names 1: num_of_products, 2: estimated_salary,
@@ -571,18 +571,139 @@ xgb_rs_balanced %>%
   show_best("f_meas") %>% 
   select(mtry:neighbors, `F1-Score` = mean) %>% 
   knitr::kable(digits = 3,  
-               caption = "Melhores parâmetros para F1-Score")
+               caption = "Melhores parâmetros para F1-Score") %>% 
+  kableExtra::add_header_above() 
 ```
 
-| mtry | trees | min\_n | over\_ratio | neighbors | F1-Score |
-|-----:|------:|-------:|------------:|----------:|---------:|
-|    4 |   400 |      4 |        0.75 |         2 |    0.616 |
-|    3 |   600 |      6 |        0.50 |         3 |    0.615 |
-|    4 |   400 |      4 |        0.50 |         3 |    0.614 |
-|    3 |   400 |      4 |        0.50 |         3 |    0.614 |
-|    3 |   400 |      2 |        0.50 |         2 |    0.614 |
-
+<table>
+<caption>
 Melhores parâmetros para F1-Score
+</caption>
+<thead>
+<tr>
+<th style="text-align:right;">
+mtry
+</th>
+<th style="text-align:right;">
+trees
+</th>
+<th style="text-align:right;">
+min\_n
+</th>
+<th style="text-align:right;">
+over\_ratio
+</th>
+<th style="text-align:right;">
+neighbors
+</th>
+<th style="text-align:right;">
+F1-Score
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+400
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.75
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.616
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+600
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.615
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+400
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.614
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+400
+</td>
+<td style="text-align:right;">
+4
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+0.614
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+400
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.50
+</td>
+<td style="text-align:right;">
+2
+</td>
+<td style="text-align:right;">
+0.614
+</td>
+</tr>
+</tbody>
+</table>
 
 # Matriz de confusão com classes balanceadas
 
@@ -591,7 +712,7 @@ xgb_rs_balanced %>%
   collect_predictions() %>% 
   conf_mat(exited, .pred_class) %>% 
   ggplot2::autoplot(type = "heatmap") +
-  ggplot2::scale_fill_gradient(low = "#b132e3", high = "#631b80")
+  ggplot2::scale_fill_gradient(low = "#c2c2d6", high = "#3d3d5c")
 ```
 
 ![](Churn_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
@@ -601,7 +722,7 @@ que falso positivo, ou seja, um precision maior que o recall.
 
 ![matriz confusao](Churn_files/figure-gfm/matriz-de-confusao.png)  
 Sendo  
-$$Precision = \frac{VP}{VP+FN}$$ E $$Recall = \frac{VP}{VP+FP}$$
+$$Precision = \frac{VP}{VP+FP}$$ E $$Recall = \frac{VP}{VP+FN}$$
 
 Detectar que um cliente deu churn quando na verdade ele não deu, ou o
 contrário, que não ocorreu o churn mas na realidade ocorreu, são
@@ -609,13 +730,73 @@ situações que envolvem um custo para a empresa. De toda forma, as duas
 devem ser evitadas, por isso acredito que a escolha da métrica F1-score
 continua sendo a mais relevante nesse caso.
 
-# Último fit do modelo
+# Modelo Final
 
 ``` r
 xgb_last_fit <- xgb_wf_balanced %>% 
   finalize_workflow(select_best(xgb_rs_balanced, metric = "f_meas")) %>% 
   last_fit(split, metrics = metric_set(accuracy, f_meas, recall, precision))
+
+xgb_last_fit %>% 
+  collect_metrics() %>% 
+  select(1,3) %>% 
+  mutate(.metric = fct_recode(.metric, "F1-Score" = "f_meas"),
+         .metric = str_to_title(.metric),
+         .estimate = round(.estimate,3)) %>% 
+  knitr::kable(caption = "Métricas do modelo final", 
+               col.names = c("Metrica", "Valor")) %>% 
+  kableExtra::add_header_above()
 ```
+
+<table>
+<caption>
+Métricas do modelo final
+</caption>
+<thead>
+<tr>
+<th style="text-align:left;">
+Metrica
+</th>
+<th style="text-align:right;">
+Valor
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Accuracy
+</td>
+<td style="text-align:right;">
+0.848
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+F1-Score
+</td>
+<td style="text-align:right;">
+0.607
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Recall
+</td>
+<td style="text-align:right;">
+0.576
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Precision
+</td>
+<td style="text-align:right;">
+0.642
+</td>
+</tr>
+</tbody>
+</table>
 
 # Importância das variáveis
 

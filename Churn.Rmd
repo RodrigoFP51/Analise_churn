@@ -355,7 +355,7 @@ O dataset criado após esse processo é mostrado abaixo.
 ```{r}
 churn_rec %>% 
   prep() %>% 
-  juice() 
+  juice()
 ```
 
 ```{r, fig.height=8, fig.width=8, cache=TRUE}
@@ -441,7 +441,6 @@ xgb_rs_balanced <- tune_grid(xgb_wf_balanced,
                     metrics = metric_set(roc_auc, f_meas),
                     control = control_grid(save_pred = TRUE))
 ```
-
 Logo em seguida é mostrado o conjunto de parâmetros que trouxeram o melhor resultado para o modelo.  
 
 ```{r}
@@ -449,7 +448,8 @@ xgb_rs_balanced %>%
   show_best("f_meas") %>% 
   select(mtry:neighbors, `F1-Score` = mean) %>% 
   knitr::kable(digits = 3,  
-               caption = "Melhores parâmetros para F1-Score")
+               caption = "Melhores parâmetros para F1-Score") %>% 
+  kableExtra::add_header_above() 
 ```
 
 # Matriz de confusão com classes balanceadas
@@ -467,18 +467,28 @@ A matriz de confusão indica que há um maior número de falso negativo do que f
 
 ![matriz confusao](Churn_files/figure-gfm/matriz-de-confusao.png)  
 Sendo  
-$$Precision = \frac{VP}{VP+FN}$$
+$$Precision = \frac{VP}{VP+FP}$$
 E
-$$Recall = \frac{VP}{VP+FP}$$
+$$Recall = \frac{VP}{VP+FN}$$
 
 Detectar que um cliente deu churn quando na verdade ele não deu, ou o contrário, que não ocorreu o churn mas na realidade ocorreu, são situações que envolvem um custo para a empresa. De toda forma, as duas devem ser evitadas, por isso acredito que a escolha da métrica F1-score continua sendo a mais relevante nesse caso.
 
-# Último fit do modelo
+# Modelo Final
 
 ```{r}
 xgb_last_fit <- xgb_wf_balanced %>% 
   finalize_workflow(select_best(xgb_rs_balanced, metric = "f_meas")) %>% 
   last_fit(split, metrics = metric_set(accuracy, f_meas, recall, precision))
+
+xgb_last_fit %>% 
+  collect_metrics() %>% 
+  select(1,3) %>% 
+  mutate(.metric = fct_recode(.metric, "F1-Score" = "f_meas"),
+         .metric = str_to_title(.metric),
+         .estimate = round(.estimate,3)) %>% 
+  knitr::kable(caption = "Métricas do modelo final", 
+               col.names = c("Metrica", "Valor")) %>% 
+  kableExtra::add_header_above()
 ```
 
 # Importância das variáveis
