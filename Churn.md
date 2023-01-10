@@ -38,14 +38,14 @@ Desta forma, se torna essencial as empresas acompanharem esse
 indicativo, visto que a perda de clientes impacta diretamente os
 resultados financeiros da empresa e sua imagem no geral.
 
-Existem várias estratégias que as empresas podem usar para evitar o
-churn de clientes. Algumas abordagens comuns incluem:
+Existem várias estratégias que as empresas podem usar para evitar a
+evasão de clientes. Algumas abordagens comuns incluem:
 
 -   Melhorando a experiência do cliente: ao fornecer produtos e serviços
     de alta qualidade, respondendo rapidamente às perguntas dos clientes
     e abordando quaisquer problemas ou preocupações que os clientes
     possam ter, as empresas podem ajudar a manter os clientes
-    satisfeitos e reduzir a probabilidade de churn.
+    satisfeitos.
 
 -   Oferecer incentivos e recompensas: as empresas podem oferecer
     incentivos e recompensas aos clientes que permanecem com eles, como
@@ -440,18 +440,18 @@ churn_rec %>%
 ```
 
     ## # A tibble: 12,740 x 13
-    ##    credit_score    age  tenure balance num_of_~1 estim~2 geogr~3 geogr~4 geogr~5
-    ##           <dbl>  <dbl>   <dbl>   <dbl>     <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
-    ##  1       -0.357  0.326 -1.54     0.690    -0.945  0.418        0       0       1
-    ##  2        0.549  0.133 -1.54    -1.34      0.886  0.236        1       0       0
-    ##  3        1.82   0.510 -0.882    0.762    -0.945  0.0646       0       0       1
-    ##  4        1.60   1.09   0.722   -1.34      0.886 -2.00         1       0       0
-    ##  5       -1.61   0.599 -0.0464   0.784     0.886  0.0107       1       0       0
-    ##  6        0.408 -1.28  -0.882    0.775    -0.945 -0.0333       1       0       0
-    ##  7       -1.27  -0.751  0.504    0.725     0.886  0.0785       1       0       0
-    ##  8       -1.67  -1.73  -0.411   -1.34      0.886  0.0299       0       0       1
-    ##  9       -1.95  -0.396  1.24    -1.34      0.886 -1.04         1       0       0
-    ## 10       -1.02  -1.57   0.252   -1.34      0.886  0.948        1       0       0
+    ##    credit_score    age  tenure balance num_of~1 estima~2 geogr~3 geogr~4 geogr~5
+    ##           <dbl>  <dbl>   <dbl>   <dbl>    <dbl>    <dbl>   <dbl>   <dbl>   <dbl>
+    ##  1      -0.373   0.330 -1.54     0.697   -0.946  0.422         0       0       1
+    ##  2       1.82    0.515 -0.881    0.769   -0.946  0.0643        0       0       1
+    ##  3       1.60    1.10   0.715   -1.32     0.880 -2.03          1       0       0
+    ##  4      -1.64    0.604 -0.0500   0.791    0.880  0.00969       1       0       0
+    ##  5       0.399  -1.28  -0.881    0.781   -0.946 -0.0348        1       0       0
+    ##  6      -1.30   -0.749  0.497    0.732    0.880  0.0782        1       0       0
+    ##  7      -1.69   -1.73  -0.413   -1.32     0.880  0.0291        0       0       1
+    ##  8      -1.98   -0.393  1.23    -1.32     0.880 -1.05          1       0       0
+    ##  9      -1.04   -1.57   0.247   -1.32     0.880  0.958         1       0       0
+    ## 10      -0.0886 -0.281  0.715   -1.32     0.880 -0.120         0       0       1
     ## # ... with 12,730 more rows, 4 more variables: gender_Male <dbl>,
     ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, exited <fct>, and
     ## #   abbreviated variable names 1: num_of_products, 2: estimated_salary,
@@ -768,7 +768,7 @@ Valor
 Accuracy
 </td>
 <td style="text-align:right;">
-0.848
+0.852
 </td>
 </tr>
 <tr>
@@ -776,7 +776,7 @@ Accuracy
 F1-Score
 </td>
 <td style="text-align:right;">
-0.607
+0.622
 </td>
 </tr>
 <tr>
@@ -784,7 +784,7 @@ F1-Score
 Recall
 </td>
 <td style="text-align:right;">
-0.576
+0.598
 </td>
 </tr>
 <tr>
@@ -792,7 +792,7 @@ Recall
 Precision
 </td>
 <td style="text-align:right;">
-0.642
+0.647
 </td>
 </tr>
 </tbody>

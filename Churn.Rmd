@@ -16,9 +16,9 @@ Essa desistência pode acontecer por diversos motivos, como insatisfação dos c
 
 Desta forma, se torna essencial as empresas acompanharem esse indicativo, visto que a perda de clientes impacta diretamente os resultados financeiros da empresa e sua imagem no geral.
 
-Existem várias estratégias que as empresas podem usar para evitar o churn de clientes. Algumas abordagens comuns incluem:
+Existem várias estratégias que as empresas podem usar para evitar a evasão de clientes. Algumas abordagens comuns incluem:
 
--  Melhorando a experiência do cliente: ao fornecer produtos e serviços de alta qualidade, respondendo rapidamente às perguntas dos clientes e abordando quaisquer problemas ou preocupações que os clientes possam ter, as empresas podem ajudar a manter os clientes satisfeitos e reduzir a probabilidade de churn.
+-  Melhorando a experiência do cliente: ao fornecer produtos e serviços de alta qualidade, respondendo rapidamente às perguntas dos clientes e abordando quaisquer problemas ou preocupações que os clientes possam ter, as empresas podem ajudar a manter os clientes satisfeitos.
 
 -  Oferecer incentivos e recompensas: as empresas podem oferecer incentivos e recompensas aos clientes que permanecem com eles, como programas de fidelidade, descontos ou ofertas especiais. Isso pode ajudar a fazer com que os clientes se sintam valorizados e apreciados, além de incentivá-los a continuar fazendo negócios com a empresa.
 
