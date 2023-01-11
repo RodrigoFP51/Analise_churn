@@ -24,7 +24,7 @@ Existem várias estratégias que as empresas podem usar para evitar a evasão de
 
 -  Coleta de feedback do cliente: ao solicitar regularmente feedback dos clientes, as empresas podem identificar possíveis problemas ou preocupações que os clientes possam ter e tomar medidas para resolvê-los antes que eles gerem rotatividade. Isso pode incluir pesquisas ou outros métodos de coleta de feedback do cliente.
 
--  Construir relacionamentos fortes: Construir relacionamentos fortes e pessoais com os clientes pode ajudar a aumentar sua fidelidade e reduzir a probabilidade de rotatividade. Isso pode envolver comunicação regular com os clientes, interações personalizadas e fornecimento de suporte e assistência personalizados quando necessário.
+-  Construir relacionamentos fortes: Construir relacionamentos fortes e pessoais com os clientes pode ajudar a aumentar sua fidelidade e reduzir a probabilidade de churn. Isso pode envolver comunicação regular com os clientes, interações personalizadas e fornecimento de suporte e assistência personalizados quando necessário.
 
 No geral, prevenir a rotatividade de clientes requer uma combinação de estratégias proativas e foco em fornecer experiências de alta qualidade aos clientes. Ao tomar medidas para identificar possíveis problemas e resolvê-los rapidamente, as empresas podem ajudar a reduzir a rotatividade de clientes e melhorar suas taxas gerais de retenção de clientes.
 

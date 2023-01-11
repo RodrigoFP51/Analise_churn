@@ -62,10 +62,9 @@ evasão de clientes. Algumas abordagens comuns incluem:
 
 -   Construir relacionamentos fortes: Construir relacionamentos fortes e
     pessoais com os clientes pode ajudar a aumentar sua fidelidade e
-    reduzir a probabilidade de rotatividade. Isso pode envolver
-    comunicação regular com os clientes, interações personalizadas e
-    fornecimento de suporte e assistência personalizados quando
-    necessário.
+    reduzir a probabilidade de churn. Isso pode envolver comunicação
+    regular com os clientes, interações personalizadas e fornecimento de
+    suporte e assistência personalizados quando necessário.
 
 No geral, prevenir a rotatividade de clientes requer uma combinação de
 estratégias proativas e foco em fornecer experiências de alta qualidade
@@ -440,18 +439,18 @@ churn_rec %>%
 ```
 
     ## # A tibble: 12,740 x 13
-    ##    credit_score    age  tenure balance num_of~1 estima~2 geogr~3 geogr~4 geogr~5
-    ##           <dbl>  <dbl>   <dbl>   <dbl>    <dbl>    <dbl>   <dbl>   <dbl>   <dbl>
-    ##  1      -0.373   0.330 -1.54     0.697   -0.946  0.422         0       0       1
-    ##  2       1.82    0.515 -0.881    0.769   -0.946  0.0643        0       0       1
-    ##  3       1.60    1.10   0.715   -1.32     0.880 -2.03          1       0       0
-    ##  4      -1.64    0.604 -0.0500   0.791    0.880  0.00969       1       0       0
-    ##  5       0.399  -1.28  -0.881    0.781   -0.946 -0.0348        1       0       0
-    ##  6      -1.30   -0.749  0.497    0.732    0.880  0.0782        1       0       0
-    ##  7      -1.69   -1.73  -0.413   -1.32     0.880  0.0291        0       0       1
-    ##  8      -1.98   -0.393  1.23    -1.32     0.880 -1.05          1       0       0
-    ##  9      -1.04   -1.57   0.247   -1.32     0.880  0.958         1       0       0
-    ## 10      -0.0886 -0.281  0.715   -1.32     0.880 -0.120         0       0       1
+    ##    credit_score    age  tenure balance num_of_~1 estim~2 geogr~3 geogr~4 geogr~5
+    ##           <dbl>  <dbl>   <dbl>   <dbl>     <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
+    ##  1       0.547   0.137 -1.52    -1.33      0.884  0.238        1       0       0
+    ##  2       1.82    0.516 -0.868    0.767    -0.950  0.0652       0       0       1
+    ##  3       1.60    1.10   0.720   -1.33      0.884 -2.02         1       0       0
+    ##  4      -1.62    0.605 -0.0411   0.790     0.884  0.0109       1       0       0
+    ##  5       0.406  -1.28  -0.868    0.780    -0.950 -0.0334       1       0       0
+    ##  6      -1.28   -0.750  0.504    0.730     0.884  0.0791       1       0       0
+    ##  7      -1.68   -1.73  -0.402   -1.33      0.884  0.0302       0       0       1
+    ##  8      -1.96   -0.394  1.24    -1.33      0.884 -1.05         1       0       0
+    ##  9      -0.0786 -0.282  0.720   -1.33      0.884 -0.118        0       0       1
+    ## 10      -0.277   0.693 -0.402    0.791     0.884 -0.143        0       1       0
     ## # ... with 12,730 more rows, 4 more variables: gender_Male <dbl>,
     ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, exited <fct>, and
     ## #   abbreviated variable names 1: num_of_products, 2: estimated_salary,
@@ -768,7 +767,7 @@ Valor
 Accuracy
 </td>
 <td style="text-align:right;">
-0.852
+0.845
 </td>
 </tr>
 <tr>
@@ -776,7 +775,7 @@ Accuracy
 F1-Score
 </td>
 <td style="text-align:right;">
-0.622
+0.610
 </td>
 </tr>
 <tr>
@@ -784,7 +783,7 @@ F1-Score
 Recall
 </td>
 <td style="text-align:right;">
-0.598
+0.596
 </td>
 </tr>
 <tr>
@@ -792,7 +791,7 @@ Recall
 Precision
 </td>
 <td style="text-align:right;">
-0.647
+0.625
 </td>
 </tr>
 </tbody>

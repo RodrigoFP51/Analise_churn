@@ -43,6 +43,13 @@ Dados utilizados:
 
 ## Modelos
 
+-   O preprocessamento das variáveis envolveram os seguintes métodos:
+    -   Transformação logarítmica nas variáveis numéricas.
+    -   Normalização das variáveis numéricas.
+    -   Criação de dummies com one hot encoding.
+    -   Remoção de variáveis preditoras altamente correlacionadas.
+    -   Remoção de variáveis com variância = zero.
+    -   Aplicação do algoritmo ADASYN para balanceamento de classes.
 -   Depois de testados diversos modelos de machine learning através do
     método de validação cruzada, chegou-se a conclusão de que o melhor
     modelo é um extreme gradient boosting (XGBoost).
@@ -57,8 +64,7 @@ Dados utilizados:
 -   É possível chegar em resultados melhores talvez pelo uso de
     diferentes método de feature engineering, ou de algoritmos de deep
     learning, porém as variáveis mais importantes para o modelo
-    dificilmente serão diferente das encontradas aqui.  
--   
+    dificilmente serão diferente das encontradas aqui.
 
 ![variable importance
 plot](Churn_files/figure-gfm/unnamed-chunk-22-1.png)
