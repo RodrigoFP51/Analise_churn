@@ -24,11 +24,11 @@ Rodrigo F. Pizzinato
 
 ## O que é churn?
 
-No mundo atual é imprescidível que as empresas conheçam e tenha um bom
-relacionamento com seus clientes. Para entender como se dá essa relação
-com os clientes, o índice de churn é uma métrica muito utilizada, pois é
-nela que se calcula a taxa de desistência de clientes num determinado
-período.
+No mundo empresarial atual é imprescidível que as empresas conheçam e
+tenha um bom relacionamento com seus clientes. Para entender como se dá
+essa relação com os clientes, o índice de churn (ou rotatividade) é uma
+métrica muito utilizada, pois é nela que se calcula a taxa de
+desistência de clientes num determinado período.
 
 Essa desistência pode acontecer por diversos motivos, como insatisfação
 dos clientes com qualidade do produto, mau atendimento, ou até por
@@ -441,16 +441,16 @@ churn_rec %>%
     ## # A tibble: 12,740 x 13
     ##    credit_score    age  tenure balance num_of_~1 estim~2 geogr~3 geogr~4 geogr~5
     ##           <dbl>  <dbl>   <dbl>   <dbl>     <dbl>   <dbl>   <dbl>   <dbl>   <dbl>
-    ##  1       0.547   0.137 -1.52    -1.33      0.884  0.238        1       0       0
-    ##  2       1.82    0.516 -0.868    0.767    -0.950  0.0652       0       0       1
-    ##  3       1.60    1.10   0.720   -1.33      0.884 -2.02         1       0       0
-    ##  4      -1.62    0.605 -0.0411   0.790     0.884  0.0109       1       0       0
-    ##  5       0.406  -1.28  -0.868    0.780    -0.950 -0.0334       1       0       0
-    ##  6      -1.28   -0.750  0.504    0.730     0.884  0.0791       1       0       0
-    ##  7      -1.68   -1.73  -0.402   -1.33      0.884  0.0302       0       0       1
-    ##  8      -1.96   -0.394  1.24    -1.33      0.884 -1.05         1       0       0
-    ##  9      -0.0786 -0.282  0.720   -1.33      0.884 -0.118        0       0       1
-    ## 10      -0.277   0.693 -0.402    0.791     0.884 -0.143        0       1       0
+    ##  1      -0.373   0.328 -1.55     0.696    -0.945  0.414        0       0       1
+    ##  2       0.543   0.134 -1.55    -1.32      0.884  0.234        1       0       0
+    ##  3       1.83    0.512 -0.885    0.768    -0.945  0.0653       0       0       1
+    ##  4       1.61    1.10   0.716   -1.32      0.884 -1.97         1       0       0
+    ##  5      -1.64    0.602 -0.0516   0.790     0.884  0.0121       1       0       0
+    ##  6       0.400  -1.28  -0.885    0.781    -0.945 -0.0312       1       0       0
+    ##  7      -1.30   -0.753  0.498    0.731     0.884  0.0789       1       0       0
+    ##  8      -1.70   -1.73  -0.416   -1.32      0.884  0.0311       0       0       1
+    ##  9      -1.04   -1.58   0.246   -1.32      0.884  0.936        1       0       0
+    ## 10      -0.0875 -0.285  0.716   -1.32      0.884 -0.114        0       0       1
     ## # ... with 12,730 more rows, 4 more variables: gender_Male <dbl>,
     ## #   has_cr_card_Sim <dbl>, is_active_member_Sim <dbl>, exited <fct>, and
     ## #   abbreviated variable names 1: num_of_products, 2: estimated_salary,
@@ -767,7 +767,7 @@ Valor
 Accuracy
 </td>
 <td style="text-align:right;">
-0.845
+0.852
 </td>
 </tr>
 <tr>
@@ -775,7 +775,7 @@ Accuracy
 F1-Score
 </td>
 <td style="text-align:right;">
-0.610
+0.621
 </td>
 </tr>
 <tr>
@@ -791,7 +791,7 @@ Recall
 Precision
 </td>
 <td style="text-align:right;">
-0.625
+0.648
 </td>
 </tr>
 </tbody>

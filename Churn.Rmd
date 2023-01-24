@@ -10,7 +10,7 @@ output:
 
 ## O que é churn?
 
-No mundo atual é imprescidível que as empresas conheçam e tenha um bom relacionamento com seus clientes. Para entender como se dá essa relação com os clientes, o índice de churn é uma métrica muito utilizada, pois é nela que se calcula a taxa de desistência de clientes num determinado período.
+No mundo empresarial atual é imprescidível que as empresas conheçam e tenha um bom relacionamento com seus clientes. Para entender como se dá essa relação com os clientes, o índice de churn (ou rotatividade) é uma métrica muito utilizada, pois é nela que se calcula a taxa de desistência de clientes num determinado período.
 
 Essa desistência pode acontecer por diversos motivos, como insatisfação dos clientes com qualidade do produto, mau atendimento, ou até por encontrar melhores empresas do mesmo ramo.
 

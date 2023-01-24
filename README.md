@@ -33,14 +33,6 @@ Dados utilizados:
 -   EstimatedSalary: salário estimado do cliente;
 -   Exited: se o cliente deixou de ser cliente do banco ou não;
 
-## Tecnologias
-
--   RStudio
--   Tidyverse (ggplot2, dplyr, tidyr, forcats…)
--   Tidymodels (parsnip, tune, workflow…)
--   Vip
--   Themis
-
 ## Modelos
 
 -   O preprocessamento das variáveis envolveram os seguintes métodos:
@@ -61,10 +53,11 @@ Dados utilizados:
 
 ## Conclusão
 
--   É possível chegar em resultados melhores talvez pelo uso de
-    diferentes método de feature engineering, ou de algoritmos de deep
-    learning, porém as variáveis mais importantes para o modelo
-    dificilmente serão diferente das encontradas aqui.
+As variáveis idade, tenure (que indica quanto tempo o cliente está com a
+empresa) e número de produtos são as mais importantes para prever o
+churn, segundo o modelo. Enquanto isso, aspectos geográficos do cliente
+ou o score de crédito não apresentam grande poder preditivo, o que
+indica um bom caminho que a empresa pode seguir para tratar o problema.
 
 ![variable importance
 plot](Churn_files/figure-gfm/unnamed-chunk-22-1.png)
